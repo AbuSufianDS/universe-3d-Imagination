@@ -1,4 +1,3 @@
-/* Copy ONLY the CSS part (from <style> to </style>) */
 * {
     margin: 0;
     padding: 0;
@@ -17,4 +16,3 @@ body {
     width: 100vw;
     height: 100vh;
 }
-/* ... continue with all CSS ... */
