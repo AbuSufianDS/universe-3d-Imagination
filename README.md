@@ -56,7 +56,7 @@ universe-3d-simulator/
 ### 🚀 Getting Started
 ``bash
 # Clone repository
-git clone https://github.com/Md-Abu-Sufian/universe-3d-simulator.git
+git clone https://github.com/AbuSufianDS/universe-3d-Imagination.git
 # Navigate to project
 cd universe-3d-simulator
 
@@ -86,4 +86,5 @@ MIT License - see [LICENSE](LICENSE) file for details
 
 ### ⭐ Support
 If you find this project interesting, give it a ⭐ on GitHub!
+
 
