@@ -323,7 +323,7 @@
             MOUNT_EVEREST: 8848,
             EARTH_DIAMETER: 1.274e7,
             SUN_DIAMETER: 1.3927e9,
-            SOLAR_SYSTEM: 9e12,        // Neptune's orbit
+            SOLAR_SYSTEM: 9e12,        
             
             // Cosmic
             LIGHT_YEAR: 9.461e15,
@@ -356,11 +356,11 @@
         function init() {
             updateLoading("Creating 3D scene...", 10);
             
-            // 1. Create Scene
+            //  Create Scene
             scene = new THREE.Scene();
             scene.fog = new THREE.Fog(0x000000, 100, 1000);
             
-            // 2. Create Camera
+        // create camera
             camera = new THREE.PerspectiveCamera(
                 60, 
                 window.innerWidth / window.innerHeight, 
@@ -369,7 +369,7 @@
             );
             camera.position.z = 20;
             
-            // 3. Create Renderer
+            // Create Renderer
             renderer = new THREE.WebGLRenderer({ 
                 antialias: true,
                 alpha: true
