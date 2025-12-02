@@ -17,7 +17,7 @@ Explore the universe from quantum particles to cosmic scales in real-time 3D!
 - **Responsive**: Works on desktop and mobile devices
 
 ### 🎮 Live Demo
-[**👉 Click Here to Try It Live**]([https://abusufiands.github.io/universe-3d-Imagination])
+[**👉 Click Here to Try It Live**](https://abusufiands.github.io/universe-3d-Imagination/)
 ### 📸 Preview
 <img width="1905" height="915" alt="image" src="https://github.com/user-attachments/assets/d41f23d4-f936-4c41-a952-f0b824812d67" />
 <img width="1901" height="900" alt="image" src="https://github.com/user-attachments/assets/9ea425ff-b990-4e92-9d59-8dc95db5ea13" />
@@ -85,6 +85,7 @@ MIT License - see [LICENSE](LICENSE) file for details
 
 ### ⭐ Support
 If you find this project interesting, give it a ⭐ on GitHub!
+
 
 
 
