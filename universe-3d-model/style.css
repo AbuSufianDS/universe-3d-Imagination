@@ -1,0 +1,20 @@
+/* Copy ONLY the CSS part (from <style> to </style>) */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    overflow: hidden;
+    background: #000;
+    color: white;
+}
+
+#container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+}
+/* ... continue with all CSS ... */

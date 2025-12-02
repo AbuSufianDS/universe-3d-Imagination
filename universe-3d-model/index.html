@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Universe Simulator - From Quantum to Cosmic</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            background: #000;
+            color: white;
+        }
+
+        #container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        #ui {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .panel {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        #info-panel {
+            top: 20px;
+            left: 20px;
+            width: 350px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        #scale-panel {
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            min-width: 300px;
+        }
+
+        #controls-panel {
+            top: 20px;
+            right: 20px;
+            width: 250px;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #4fc3f7;
+            text-shadow: 0 0 10px rgba(79, 195, 247, 0.5);
+        }
+
+        h2 {
+            font-size: 32px;
+            margin: 10px 0;
+            color: #fff;
+        }
+
+        .data-line {
+            margin: 8px 0;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .label {
+            color: #aaa;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .value {
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .scientific {
+            color: #4fc3f7;
+            font-family: 'Courier New', monospace;
+        }
+
+        .comparison {
+            color: #69f0ae;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .instructions {
+            color: #ffb74d;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-top: 10px;
+        }
+
+        .control-item {
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .control-label {
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        .control-value {
+            color: #4fc3f7;
+            font-weight: bold;
+        }
+
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            font-size: 24px;
+            z-index: 100;
+        }
+
+        .progress-bar {
+            width: 200px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            margin: 20px auto;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: #4fc3f7;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        #comparison-visual {
+            position: absolute;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #4fc3f7, transparent);
+            opacity: 0.7;
+        }
+
+        .object-marker {
+            position: absolute;
+            background: rgba(79, 195, 247, 0.3);
+            border: 2px solid #4fc3f7;
+            border-radius: 50%;
+            pointer-events: none;
+            transition: all 0.3s;
+        }
+
+        .scale-tick {
+            position: absolute;
+            width: 1px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.5);
+            transform: translateX(-50%);
+        }
+
+        .scale-label {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 12px;
+            transform: translate(-50%, 15px);
+            white-space: nowrap;
+        }
+
+        .comparison-label {
+            position: absolute;
+            color: #69f0ae;
+            font-size: 14px;
+            transform: translate(-50%, -25px);
+            white-space: nowrap;
+            font-weight: bold;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            #info-panel, #controls-panel {
+                width: 90%;
+                left: 5%;
+                right: 5%;
+            }
+            
+            #info-panel {
+                top: 10px;
+                max-height: 40vh;
+            }
+            
+            #controls-panel {
+                top: auto;
+                bottom: 120px;
+            }
+            
+            #scale-panel {
+                bottom: 10px;
+                width: 90%;
+            }
+            
+            h1 { font-size: 18px; }
+            h2 { font-size: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="ui">
+            <div id="info-panel" class="panel">
+                <h1>Cosmic Object</h1>
+                <div id="object-info"></div>
+            </div>
+            
+            <div id="scale-panel" class="panel">
+                <h2 id="scale-value">1 × 10<sup>-15</sup> meters</h2>
+                <div id="scale-desc">(1 femtometer - Proton size)</div>
+                <div class="instructions">Scroll to zoom • Click/drag to rotate</div>
+            </div>
+            
+            <div id="controls-panel" class="panel">
+                <h1>Controls</h1>
+                <div class="control-item">
+                    <span class="control-label">Time Scale:</span>
+                    <span class="control-value" id="time-scale">1.0x</span>
+                </div>
+                <div class="control-item">
+                    <span class="control-label">Grid:</span>
+                    <span class="control-value" id="grid-status">ON</span>
+                </div>
+                <div class="control-item">
+                    <span class="control-label">Orbits:</span>
+                    <span class="control-value" id="orbit-status">ON</span>
+                </div>
+                <div class="instructions">
+                    Q/E: Time Speed<br>
+                    G: Toggle Grid<br>
+                    O: Toggle Orbits<br>
+                    R: Reset View
+                </div>
+            </div>
+            
+            <div id="comparison-visual"></div>
+        </div>
+        
+        <div id="loading">
+            <div>Loading Universe Simulator...</div>
+            <div class="progress-bar">
+                <div class="progress" id="loading-progress"></div>
+            </div>
+            <div id="loading-text">Initializing 3D engine...</div>
+        </div>
+    </div>
+
+    <!-- Three.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Orbit Controls for camera -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
+    
+    <script>
+        // ========== MAIN CONFIGURATION ==========
+        const CONFIG = {
+            SCROLL_SENSITIVITY: 0.05,           
+            MIN_EXPONENT: -35,     // Planck length: 1.6e-35m
+            MAX_EXPONENT: 27,      // Observable universe: 8.8e26m
+            START_EXPONENT: -15,   // Start at proton scale
+            ZOOM_SPEED: 0.5,
+            ROTATION_SPEED: 0.002,
+            AUTO_ROTATE: true
+        };
+
+        // Real-world sizes in meters (diameter)
+        const REAL_SIZES = {
+            // Quantum World
+            PLANCK_LENGTH: 1.6e-35,
+            QUARK: 1e-18,
+            PROTON: 1.6e-15,
+            HYDROGEN_ATOM: 5.3e-11,
+            
+            // Atomic/Molecular
+            DNA_WIDTH: 2e-9,
+            VIRUS: 1e-7,
+            BACTERIA: 1e-6,
+            HUMAN_HAIR: 7.5e-5,
+            
+            // Human Scale
+            ANT: 0.005,
+            HUMAN: 1.7,
+            BLUE_WHALE: 30,
+            
+            // Astronomical
+            MOUNT_EVEREST: 8848,
+            EARTH_DIAMETER: 1.274e7,
+            SUN_DIAMETER: 1.3927e9,
+            SOLAR_SYSTEM: 9e12,        // Neptune's orbit
+            
+            // Cosmic
+            LIGHT_YEAR: 9.461e15,
+            MILKY_WAY: 1e21,
+            OBSERVABLE_UNIVERSE: 8.8e26
+        };
+
+        // ========== STATE MANAGEMENT ==========
+        let state = {
+            currentExponent: CONFIG.START_EXPONENT,
+            targetExponent: CONFIG.START_EXPONENT,
+            timeScale: 1.0,
+            showGrid: true,
+            showOrbits: true,
+            closestObject: null,
+            lastScrollTime: 0,
+            zoomVelocity: 0,
+            autoRotation: true
+        };
+
+        // ========== THREE.JS SETUP ==========
+        let scene, camera, renderer, controls;
+        let objects = [];
+        let grid = null;
+        let universeObjects = [];
+        let starfield = null;
+        let particleSystem = null;
+
+        // ========== INITIALIZATION ==========
+        function init() {
+            updateLoading("Creating 3D scene...", 10);
+            
+            // 1. Create Scene
+            scene = new THREE.Scene();
+            scene.fog = new THREE.Fog(0x000000, 100, 1000);
+            
+            // 2. Create Camera
+            camera = new THREE.PerspectiveCamera(
+                60, 
+                window.innerWidth / window.innerHeight, 
+                0.1, 
+                1000000
+            );
+            camera.position.z = 20;
+            
+            // 3. Create Renderer
+            renderer = new THREE.WebGLRenderer({ 
+                antialias: true,
+                alpha: true
+            });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            document.getElementById('container').appendChild(renderer.domElement);
+            
+            // 4. Add Orbit Controls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.rotateSpeed = CONFIG.ROTATION_SPEED;
+            controls.minDistance = 0.1;
+            controls.maxDistance = 10000;
+            controls.autoRotate = state.autoRotation;
+            controls.autoRotateSpeed = 0.5;
+            
+            updateLoading("Setting up lighting...", 30);
+            
+            // 5. Lighting
+            const ambientLight = new THREE.AmbientLight(0x444444);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+            directionalLight.position.set(10, 10, 5);
+            directionalLight.castShadow = true;
+            directionalLight.shadow.mapSize.width = 2048;
+            directionalLight.shadow.mapSize.height = 2048;
+            scene.add(directionalLight);
+            
+            // 6. Create Starfield Background
+            createStarfield();
+            updateLoading("Creating starfield...", 40);
+            
+            // 7. Create Grid
+            createGrid();
+            updateLoading("Creating reference grid...", 50);
+            
+            // 8. Create Universe Objects
+            createUniverseObjects();
+            updateLoading("Creating cosmic objects...", 80);
+            
+            // 9. Setup Event Listeners
+            setupEventListeners();
+            updateLoading("Finalizing...", 90);
+            
+            // 10. Hide Loading Screen
+            setTimeout(() => {
+                document.getElementById('loading').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('loading').style.display = 'none';
+                }, 500);
+                updateLoading("Ready!", 100);
+            }, 500);
+            
+            // Start Animation
+            animate();
+        }
+
+        // ========== LOADING UPDATES ==========
+        function updateLoading(text, progress) {
+            document.getElementById('loading-text').textContent = text;
+            document.getElementById('loading-progress').style.width = `${progress}%`;
+        }
+
+        // ========== CREATE STARFIELD ==========
+        function createStarfield() {
+            const starGeometry = new THREE.BufferGeometry();
+            const starCount = 10000;
+            const positions = new Float32Array(starCount * 3);
+            
+            for (let i = 0; i < starCount * 3; i += 3) {
+                positions[i] = (Math.random() - 0.5) * 2000;
+                positions[i + 1] = (Math.random() - 0.5) * 2000;
+                positions[i + 2] = (Math.random() - 0.5) * 2000;
+            }
+            
+            starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            
+            const starMaterial = new THREE.PointsMaterial({
+                color: 0xffffff,
+                size: 0.7,
+                sizeAttenuation: true
+            });
+            
+            starfield = new THREE.Points(starGeometry, starMaterial);
+            scene.add(starfield);
+        }
+
+        // ========== CREATE GRID ==========
+        function createGrid() {
+            const gridSize = 100;
+            const gridDivisions = 100;
+            const gridHelper = new THREE.GridHelper(gridSize, gridDivisions, 0x444444, 0x222222);
+            gridHelper.position.y = -0.1;
+            grid = gridHelper;
+            scene.add(grid);
+        }
+
+        // ========== UNIVERSE OBJECT CLASS ==========
+        class UniverseObject {
+            constructor(data) {
+                this.name = data.name;
+                this.realSize = data.size; // in meters
+                this.exponent = Math.log10(data.size);
+                this.color = data.color || 0xffffff;
+                this.mass = data.mass;
+                this.density = data.density;
+                this.temperature = data.temperature;
+                this.composition = data.composition;
+                this.rotationSpeed = data.rotationSpeed || 0.01;
+                this.orbitRadius = data.orbitRadius || 0;
+                this.orbitSpeed = data.orbitSpeed || 0;
+                this.orbitAngle = Math.random() * Math.PI * 2;
+                
+                // Create 3D object
+                let geometry, material;
+                
+                switch(data.type) {
+                    case 'sphere':
+                        geometry = new THREE.SphereGeometry(1, 32, 32);
+                        break;
+                    case 'cube':
+                        geometry = new THREE.BoxGeometry(1, 1, 1);
+                        break;
+                    case 'disk':
+                        geometry = new THREE.CircleGeometry(1, 32);
+                        break;
+                    default:
+                        geometry = new THREE.SphereGeometry(1, 32, 32);
+                }
+                
+                material = new THREE.MeshPhongMaterial({
+                    color: this.color,
+                    emissive: data.emissive || 0x000000,
+                    emissiveIntensity: data.emissiveIntensity || 0,
+                    shininess: data.shininess || 30,
+                    transparent: data.transparent || false,
+                    opacity: data.opacity || 1.0
+                });
+                
+                this.mesh = new THREE.Mesh(geometry, material);
+                this.mesh.userData.object = this;
+                
+                // Add wireframe for some objects
+                if (data.wireframe) {
+                    const wireframe = new THREE.LineSegments(
+                        new THREE.EdgesGeometry(geometry),
+                        new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.3 })
+                    );
+                    this.mesh.add(wireframe);
+                }
+                
+                // Initial position
+                if (data.position) {
+                    this.mesh.position.copy(data.position);
+                }
+                
+                scene.add(this.mesh);
+                universeObjects.push(this);
+            }
+            
+            update(deltaTime, currentExponent) {
+                // Calculate visual scale
+                const visualScale = this.realSize / Math.pow(10, currentExponent);
+                const maxScale = 50;
+                const minScale = 0.001;
+                
+                if (visualScale > minScale && visualScale < maxScale) {
+                    this.mesh.visible = true;
+                    this.mesh.scale.setScalar(Math.min(visualScale, maxScale));
+                    
+                    // Fade based on distance from optimal viewing scale
+                    const scaleDiff = Math.abs(currentExponent - this.exponent);
+                    let opacity = 1.0;
+                    
+                    if (scaleDiff > 2) {
+                        opacity = Math.max(0.2, 1 - (scaleDiff - 2) / 3);
+                    }
+                    
+                    this.mesh.material.opacity = opacity;
+                    this.mesh.material.transparent = opacity < 0.99;
+                    
+                    // Rotation
+                    this.mesh.rotation.y += this.rotationSpeed * deltaTime * state.timeScale;
+                    
+                    // Orbital motion
+                    if (this.orbitRadius > 0 && state.showOrbits) {
+                        this.orbitAngle += this.orbitSpeed * deltaTime * state.timeScale;
+                        const orbitX = Math.cos(this.orbitAngle) * this.orbitRadius;
+                        const orbitZ = Math.sin(this.orbitAngle) * this.orbitRadius;
+                        this.mesh.position.x = orbitX;
+                        this.mesh.position.z = orbitZ;
+                    }
+                } else {
+                    this.mesh.visible = false;
+                }
+            }
+            
+            getInfo() {
+                let info = `<div class="data-line">
+                    <div class="label">Size</div>
+                    <div class="value scientific">${this.realSize.toExponential(2)} m</div>
+                </div>`;
+                
+                if (this.mass) {
+                    info += `<div class="data-line">
+                        <div class="label">Mass</div>
+                        <div class="value scientific">${this.mass.toExponential(2)} kg</div>
+                    </div>`;
+                }
+                
+                if (this.density) {
+                    info += `<div class="data-line">
+                        <div class="label">Density</div>
+                        <div class="value">${this.density.toLocaleString()} kg/m³</div>
+                    </div>`;
+                }
+                
+                if (this.temperature) {
+                    info += `<div class="data-line">
+                        <div class="label">Temperature</div>
+                        <div class="value">${this.temperature.toLocaleString()} K</div>
+                    </div>`;
+                }
+                
+                if (this.composition) {
+                    info += `<div class="data-line">
+                        <div class="label">Composition</div>
+                        <div class="value">${this.composition}</div>
+                    </div>`;
+                }
+                
+                return info;
+            }
+        }
+
+        // ========== CREATE UNIVERSE OBJECTS ==========
+        function createUniverseObjects() {
+            // Quantum Scale
+            new UniverseObject({
+                name: "Planck Length",
+                size: REAL_SIZES.PLANCK_LENGTH,
+                type: 'sphere',
+                color: 0x8e24aa,
+                emissive: 0x8e24aa,
+                emissiveIntensity: 0.5,
+                rotationSpeed: 0.1,
+                temperature: 1.4e32,
+                composition: "Fundamental scale"
+            });
+            
+            new UniverseObject({
+                name: "Proton",
+                size: REAL_SIZES.PROTON,
+                type: 'sphere',
+                color: 0xff5252,
+                mass: 1.67e-27,
+                density: 6e17,
+                composition: "Up & Down Quarks",
+                rotationSpeed: 0.05
+            });
+            
+            new UniverseObject({
+                name: "Hydrogen Atom",
+                size: REAL_SIZES.HYDROGEN_ATOM,
+                type: 'sphere',
+                color: 0x40c4ff,
+                transparent: true,
+                opacity: 0.3,
+                wireframe: true,
+                composition: "1 proton, 1 electron"
+            });
+            
+            // Molecular
+            new UniverseObject({
+                name: "DNA Strand",
+                size: REAL_SIZES.DNA_WIDTH,
+                type: 'cube',
+                color: 0xe040fb,
+                scale: { x: 0.3, y: 1, z: 0.3 },
+                composition: "Double helix"
+            });
+            
+            // Biological
+            new UniverseObject({
+                name: "Virus",
+                size: REAL_SIZES.VIRUS,
+                type: 'sphere',
+                color: 0x69f0ae,
+                rotationSpeed: 0.02
+            });
+            
+            new UniverseObject({
+                name: "Human Hair",
+                size: REAL_SIZES.HUMAN_HAIR,
+                type: 'cube',
+                color: 0xffcc80,
+                scale: { x: 0.1, y: 1, z: 0.1 }
+            });
+            
+            // Human Scale
+            const human = new UniverseObject({
+                name: "Human",
+                size: REAL_SIZES.HUMAN,
+                type: 'cube',
+                color: 0xffab91,
+                scale: { x: 0.3, y: 1.7, z: 0.2 },
+                position: new THREE.Vector3(0, 0.85, 0)
+            });
+            
+            new UniverseObject({
+                name: "Blue Whale",
+                size: REAL_SIZES.BLUE_WHALE,
+                type: 'cube',
+                color: 0x64b5f6,
+                scale: { x: 6, y: 3, z: 2 },
+                position: new THREE.Vector3(3, 1.5, 0)
+            });
+            
+            // Astronomical - Solar System
+            const sun = new UniverseObject({
+                name: "Sun",
+                size: REAL_SIZES.SUN_DIAMETER,
+                type: 'sphere',
+                color: 0xffeb3b,
+                emissive: 0xff9800,
+                emissiveIntensity: 0.8,
+                mass: 1.989e30,
+                density: 1408,
+                temperature: 5778,
+                composition: "74% H, 24% He",
+                rotationSpeed: 0.005,
+                position: new THREE.Vector3(0, 0, 0)
+            });
+            
+            // Earth
+            const earth = new UniverseObject({
+                name: "Earth",
+                size: REAL_SIZES.EARTH_DIAMETER,
+                type: 'sphere',
+                color: 0x2196f3,
+                mass: 5.972e24,
+                density: 5514,
+                temperature: 288,
+                composition: "Iron, Oxygen, Silicon",
+                rotationSpeed: 0.01,
+                orbitRadius: 15,
+                orbitSpeed: 0.008
+            });
+            
+            // Moon
+            new UniverseObject({
+                name: "Moon",
+                size: 3.474e6,
+                type: 'sphere',
+                color: 0x9e9e9e,
+                orbitRadius: 3,
+                orbitSpeed: 0.03,
+                position: new THREE.Vector3(earth.orbitRadius + 3, 0, 0)
+            });
+            
+            // Mars
+            new UniverseObject({
+                name: "Mars",
+                size: 6.779e6,
+                type: 'sphere',
+                color: 0xff5722,
+                orbitRadius: 22,
+                orbitSpeed: 0.006
+            });
+            
+            // Jupiter
+            new UniverseObject({
+                name: "Jupiter",
+                size: 1.3982e8,
+                type: 'sphere',
+                color: 0xffb74d,
+                orbitRadius: 40,
+                orbitSpeed: 0.003,
+                rotationSpeed: 0.02
+            });
+            
+            // Milky Way Galaxy (as a disk)
+            new UniverseObject({
+                name: "Milky Way Galaxy",
+                size: REAL_SIZES.MILKY_WAY,
+                type: 'disk',
+                color: 0x7c4dff,
+                transparent: true,
+                opacity: 0.3,
+                position: new THREE.Vector3(0, 0, -100),
+                rotationSpeed: 0.0001,
+                composition: "100-400 billion stars"
+            });
+            
+            // Observable Universe
+            new UniverseObject({
+                name: "Observable Universe",
+                size: REAL_SIZES.OBSERVABLE_UNIVERSE,
+                type: 'sphere',
+                color: 0x311b92,
+                transparent: true,
+                opacity: 0.1,
+                wireframe: true,
+                rotationSpeed: 0.00001
+            });
+            
+            // Add some random stars
+            for (let i = 0; i < 50; i++) {
+                const starSize = REAL_SIZES.SUN_DIAMETER * (0.1 + Math.random() * 10);
+                const distance = 100 + Math.random() * 500;
+                const angle = Math.random() * Math.PI * 2;
+                
+                new UniverseObject({
+                    name: "Star",
+                    size: starSize,
+                    type: 'sphere',
+                    color: new THREE.Color().setHSL(Math.random() * 0.1 + 0.5, 0.5, 0.5),
+                    emissive: 0x444444,
+                    emissiveIntensity: 0.3,
+                    position: new THREE.Vector3(
+                        Math.cos(angle) * distance,
+                        (Math.random() - 0.5) * 50,
+                        Math.sin(angle) * distance
+                    ),
+                    rotationSpeed: 0.001 + Math.random() * 0.01
+                });
+            }
+        }
+
+        // ========== EVENT LISTENERS ==========
+        function setupEventListeners() {
+            // Mouse wheel for zoom
+            renderer.domElement.addEventListener('wheel', (event) => {
+                event.preventDefault();
+                const delta = Math.sign(event.deltaY) * CONFIG.SCROLL_SENSITIVITY;
+                state.targetExponent += delta;
+                state.targetExponent = Math.max(CONFIG.MIN_EXPONENT, 
+                    Math.min(CONFIG.MAX_EXPONENT, state.targetExponent));
+                
+                // Add some inertia
+                state.zoomVelocity = delta * 2;
+            });
+            
+            // Keyboard controls
+            document.addEventListener('keydown', (event) => {
+                switch(event.key.toLowerCase()) {
+                    case 'q': // Slow time
+                        state.timeScale = Math.max(0.01, state.timeScale * 0.9);
+                        break;
+                    case 'e': // Speed time
+                        state.timeScale = Math.min(1000, state.timeScale * 1.1);
+                        break;
+                    case 'g': // Toggle grid
+                        state.showGrid = !state.showGrid;
+                        grid.visible = state.showGrid;
+                        break;
+                    case 'o': // Toggle orbits
+                        state.showOrbits = !state.showOrbits;
+                        break;
+                    case 'r': // Reset
+                        state.targetExponent = CONFIG.START_EXPONENT;
+                        state.timeScale = 1.0;
+                        camera.position.set(0, 0, 20);
+                        camera.lookAt(0, 0, 0);
+                        break;
+                    case ' ': // Toggle auto-rotation
+                        state.autoRotation = !state.autoRotation;
+                        controls.autoRotate = state.autoRotation;
+                        break;
+                }
+                updateUI();
+            });
+            
+            // Window resize
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+            
+            // Touch events for mobile
+            let touchStartDistance = 0;
+            renderer.domElement.addEventListener('touchstart', (event) => {
+                if (event.touches.length === 2) {
+                    touchStartDistance = Math.hypot(
+                        event.touches[0].clientX - event.touches[1].clientX,
+                        event.touches[0].clientY - event.touches[1].clientY
+                    );
+                }
+            });
+            
+            renderer.domElement.addEventListener('touchmove', (event) => {
+                if (event.touches.length === 2) {
+                    event.preventDefault();
+                    const touchDistance = Math.hypot(
+                        event.touches[0].clientX - event.touches[1].clientX,
+                        event.touches[0].clientY - event.touches[1].clientY
+                    );
+                    const delta = (touchStartDistance - touchDistance) * 0.01;
+                    state.targetExponent += delta;
+                    state.targetExponent = Math.max(CONFIG.MIN_EXPONENT, 
+                        Math.min(CONFIG.MAX_EXPONENT, state.targetExponent));
+                    touchStartDistance = touchDistance;
+                }
+            });
+        }
+
+        // ========== UPDATE UI ==========
+        function updateUI() {
+            // Update scale display
+            const currentMeters = Math.pow(10, state.currentExponent);
+            let scaleText, scaleDesc;
+            
+            if (currentMeters < 1e-9) {
+                scaleText = `${currentMeters.toExponential(2)} m`;
+                scaleDesc = "Sub-atomic scale";
+            } else if (currentMeters < 1e-6) {
+                scaleText = `${(currentMeters * 1e9).toFixed(0)} nanometers`;
+                scaleDesc = "Molecular scale";
+            } else if (currentMeters < 1e-3) {
+                scaleText = `${(currentMeters * 1e6).toFixed(0)} micrometers`;
+                scaleDesc = "Microscopic scale";
+            } else if (currentMeters < 1) {
+                scaleText = `${(currentMeters * 100).toFixed(0)} centimeters`;
+                scaleDesc = "Human scale";
+            } else if (currentMeters < 1000) {
+                scaleText = `${currentMeters.toFixed(1)} meters`;
+                scaleDesc = "Macroscopic scale";
+            } else if (currentMeters < 1e6) {
+                scaleText = `${(currentMeters / 1000).toFixed(1)} kilometers`;
+                scaleDesc = "Planetary scale";
+            } else if (currentMeters < 1e12) {
+                scaleText = `${(currentMeters / 1e6).toFixed(1)} megameters`;
+                scaleDesc = "Solar system scale";
+            } else if (currentMeters < 1e18) {
+                scaleText = `${(currentMeters / 9.461e15).toFixed(2)} light years`;
+                scaleDesc = "Interstellar scale";
+            } else {
+                scaleText = `${currentMeters.toExponential(2)} m`;
+                scaleDesc = "Cosmic scale";
+            }
+            
+            document.getElementById('scale-value').innerHTML = 
+                `Scale: ${scaleText}`;
+            document.getElementById('scale-desc').textContent = scaleDesc;
+            
+            // Update controls
+            document.getElementById('time-scale').textContent = 
+                `${state.timeScale.toFixed(2)}x`;
+            document.getElementById('grid-status').textContent = 
+                state.showGrid ? 'ON' : 'OFF';
+            document.getElementById('orbit-status').textContent = 
+                state.showOrbits ? 'ON' : 'OFF';
+            
+            // Update object info
+            if (state.closestObject) {
+                document.getElementById('object-info').innerHTML = `
+                    <h2>${state.closestObject.name}</h2>
+                    ${state.closestObject.getInfo()}
+                `;
+            } else {
+                document.getElementById('object-info').innerHTML = `
+                    <h2>Empty Space</h2>
+                    <div class="data-line">
+                        <div class="label">Scale</div>
+                        <div class="value scientific">${currentMeters.toExponential(2)} m</div>
+                    </div>
+                    <div class="instructions">Zoom in/out to see objects</div>
+                `;
+            }
+        }
+
+        // ========== FIND CLOSEST OBJECT ==========
+        function findClosestObject(currentExponent) {
+            let closest = null;
+            let minDiff = Infinity;
+            
+            for (const obj of universeObjects) {
+                if (obj.mesh.visible) {
+                    const diff = Math.abs(currentExponent - obj.exponent);
+                    if (diff < minDiff) {
+                        minDiff = diff;
+                        closest = obj;
+                    }
+                }
+            }
+            
+            state.closestObject = closest;
+        }
+
+        // ========== ANIMATION LOOP ==========
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            const deltaTime = 0.016; // Approximate 60 FPS
+            
+            // Smooth zoom interpolation
+            state.currentExponent += (state.targetExponent - state.currentExponent) * 
+                CONFIG.ZOOM_SPEED * deltaTime;
+            
+            // Apply zoom inertia
+            if (Math.abs(state.zoomVelocity) > 0.001) {
+                state.targetExponent += state.zoomVelocity;
+                state.targetExponent = Math.max(CONFIG.MIN_EXPONENT, 
+                    Math.min(CONFIG.MAX_EXPONENT, state.targetExponent));
+                state.zoomVelocity *= 0.9; // Friction
+            }
+            
+            // Update all objects
+            universeObjects.forEach(obj => {
+                obj.update(deltaTime, state.currentExponent);
+            });
+            
+            // Update starfield rotation for cosmic feel
+            if (starfield) {
+                starfield.rotation.y += 0.0001 * state.timeScale;
+            }
+            
+            // Find closest object
+            findClosestObject(state.currentExponent);
+            
+            // Update UI
+            updateUI();
+            
+            // Update controls
+            controls.update();
+            
+            // Render
+            renderer.render(scene, camera);
+        }
+
+        // ========== START THE SIMULATION ==========
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
