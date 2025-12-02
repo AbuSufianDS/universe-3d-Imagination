@@ -1,4 +1,3 @@
-// Copy ONLY the JavaScript part (from <script> to </script>)
 const CONFIG = {
     SCROLL_SENSITIVITY: 0.25,
     MIN_EXPONENT: -35,
@@ -8,6 +7,3 @@ const CONFIG = {
     ROTATION_SPEED: 0.002,
     AUTO_ROTATE: true
 };
-/* ... continue with all JavaScript ... */
-
-// Update the HTML file to link separate files
