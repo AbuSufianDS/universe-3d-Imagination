@@ -137,13 +137,14 @@ start index.html
 -  Computer Science Student
 -  Data Science Enthusiast
 -  Python, Pandas, Machine Learning
--  GitHub: [@Md-Abu-Sufian](https://github.com/Md-Abu-Sufian)
+-  GitHub: [@Md-Abu-Sufian](https://github.com/AbuSufianDS)
 
 ###  License
 MIT License - see [LICENSE](LICENSE) file for details
 
 ###  Support
 If you find this project interesting, give it a ⭐ on GitHub!
+
 
 
 
