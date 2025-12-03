@@ -30,7 +30,7 @@ Explore the universe from quantum particles to cosmic scales in real-time 3D!
 - **HTML5 Canvas** - Graphics rendering
 - **CSS3** - Modern UI with animations
 
-### 🎯 Controls
+🎯 Controls
 | Action | Control |
 |--------|---------|
 | Rotate View | Click + Drag mouse |
@@ -42,15 +42,37 @@ Explore the universe from quantum particles to cosmic scales in real-time 3D!
 | Reset View | R key |
 | Auto-rotation | Spacebar |
 
-### 📁 Project Structure
-``
-universe-3d-simulator/
-├── index.html          # Main application
-├── main.js             # 3D simulation logic
-├── style.css           # Styling and UI
-├── README.md           # This documentation
-└── assets/             # Textures and models (future)
-``
+📁 Project Structure
+universe-3d-model/
+│
+├── 📄 index.html           - Primary interface document
+├── 📄 visual-engine.js     - Core rendering system
+├── 📄 physics-controller.js - Orbital mechanics handler
+├── 📄 interface-style.css  - User interface styling
+├── 📄 configuration.json   - Simulation parameters
+│
+├── 📁 resources/
+│   ├── 📁 celestial-textures/  - Planetary surface maps
+│   ├── 📁 icon-assets/         - UI graphical elements
+│   └── 📁 shader-programs/     - Custom rendering shaders
+│
+├── 📁 documentation/
+│   ├── 📄 api-reference.md     - Function documentation
+│   ├── 📄 user-guide.md        - Usage instructions
+│   └── 📄 development-notes.md - Implementation details
+│
+└── 📄 implementation-notes.txt - Technical decisions log
+index.html
+  ├── interface-style.css (stylesheet)
+  ├── visual-engine.js (primary script)
+  └── physics-controller.js (secondary script)
+
+visual-engine.js
+  ├── configuration.json (settings)
+  └── shader-programs/ (optional enhancements)
+
+physics-controller.js
+  └── configuration.json (physical constants)
 
 ### 🚀 Getting Started
 ``bash
@@ -85,6 +107,7 @@ MIT License - see [LICENSE](LICENSE) file for details
 
 ### ⭐ Support
 If you find this project interesting, give it a ⭐ on GitHub!
+
 
 
 
